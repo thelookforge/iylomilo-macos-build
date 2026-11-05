@@ -1,4 +1,4 @@
-name: Build iylomilo macOS installer
+name: Build iylomilo macOS VST3
 
 on:
   workflow_dispatch:
@@ -20,15 +20,28 @@ jobs:
             brew install cmake
           fi
 
-      - name: Build universal AU, VST3, and CLAP installer
+      - name: Build universal VST3 bundle
         run: |
-          chmod +x tools/make_installer_mac.sh
-          ./tools/make_installer_mac.sh
+          set -euo pipefail
+          VERSION=$(sed -n 's/^project(iylomilo VERSION \([0-9.]*\).*/\1/p' CMakeLists.txt)
+          BUILD="build/macos"
+          cmake -S . -B "$BUILD" \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
+            -DIYLOMILO_COPY_AFTER_BUILD=OFF
+          cmake --build "$BUILD" --config Release --parallel "$(sysctl -n hw.ncpu)" --target TheCalm_VST3
 
-      - name: Upload the macOS installer
+          VST3_BUNDLE="$BUILD/TheCalm_artefacts/Release/VST3/iylomilo.vst3"
+          test -d "$VST3_BUNDLE"
+          mkdir -p dist
+          ditto -c -k --sequesterRsrc --keepParent "$VST3_BUNDLE" \
+            "dist/iylomilo-$VERSION-macOS-universal-VST3.zip"
+
+      - name: Upload the macOS VST3 bundle
         uses: actions/upload-artifact@v7
         with:
-          name: iylomilo-1.0-macOS-universal-installer
-          path: dist/*.pkg
+          name: iylomilo-macOS-universal-VST3
+          path: dist/*.zip
           if-no-files-found: error
           retention-days: 14

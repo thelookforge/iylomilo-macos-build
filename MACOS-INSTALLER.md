@@ -1,27 +1,24 @@
-# iylomilo macOS installer build
+# iylomilo macOS VST3
 
-This project creates a universal macOS installer for **iylomilo by thefadlyma**. The installer offers three selectable formats:
+This workflow builds the **VST3 plug-in only** as a universal macOS bundle for Apple Silicon and Intel Macs. It supports macOS 11 or newer and does not create a `.pkg` installer.
 
-- **AU** for Logic Pro, GarageBand, and other Audio Unit hosts
-- **VST3** for Ableton Live, Cubase, REAPER, and other VST3 hosts
-- **CLAP** for DAWs that support CLAP
+## Download the plug-in
 
-The plug-ins are built for Apple Silicon and Intel Macs, with macOS 11 or newer as the deployment target.
+1. Open the repository's **Actions** tab and select **Build iylomilo macOS VST3**.
+2. Click **Run workflow**. When the run finishes successfully, download the `iylomilo-macOS-universal-VST3` artifact.
+3. Extract the downloaded artifact ZIP. Inside it, extract `iylomilo-1.0-macOS-universal-VST3.zip` to get the `iylomilo.vst3` plug-in bundle.
 
-## Build the installer on a Mac
+## Install
 
-1. Install Xcode Command Line Tools by opening Terminal and running `xcode-select --install`.
-2. Install CMake. If Homebrew is already installed, run `brew install cmake`.
-3. Unzip this project on the Mac and open Terminal in the unzipped `iylomilo-source` folder.
-4. Run:
+1. Quit your DAW.
+2. In Finder, choose **Go → Go to Folder…** and enter:
 
-   ```sh
-   chmod +x tools/make_installer_mac.sh
-   ./tools/make_installer_mac.sh
+   ```text
+   ~/Library/Audio/Plug-Ins/VST3
    ```
 
-The completed package will be created in `dist/iylomilo-1.0-macOS-universal.pkg`. The installer lets the user choose AU, VST3, CLAP, or any combination. Plug-ins install in the standard system audio plug-in folders.
+   If the `VST3` folder does not exist, create it.
+3. Copy the whole `iylomilo.vst3` bundle into that folder.
+4. Reopen your DAW and rescan its plug-ins if iylomilo does not appear.
 
-## Signing note
-
-The package produced by this script is unsigned and not notarized by Apple. macOS may show a security warning when it is opened. A Developer ID Installer certificate and Apple notarization are required for a signed, notarized release.
+The plug-in is currently unsigned and not notarized by Apple. Some macOS systems or DAWs may show a security warning or block it.
